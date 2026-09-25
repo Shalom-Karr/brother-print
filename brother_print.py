@@ -3,7 +3,7 @@ BrotherPrint - print PDFs/images to the Brother MFC-J4355DW over IPP (AirPrint),
 pay-first prompt. Renders each page to JPEG and submits one IPP Print-Job per page (the
 Brother accepts image/jpeg, not application/pdf). Never touches the Windows print spooler.
 """
-import io, os, json, queue, socket, struct, threading, time
+import io, os, sys, json, queue, socket, struct, threading, time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from PIL import Image, ImageTk
@@ -336,7 +336,9 @@ class App:
     def open_file(self):
         p=filedialog.askopenfilename(initialdir=self.cfg.get("last_dir") or None,
             filetypes=[("Printable","*.pdf *.png *.jpg *.jpeg *.bmp *.gif *.tif *.tiff"),("All","*.*")])
-        if not p: return
+        if p: self.load_path(p)
+
+    def load_path(self, p):
         try:
             if self.doc: self.doc.close()
             self.doc=raster.Document(p); self.page=0; self.cfg["last_dir"]=os.path.dirname(p)
@@ -503,7 +505,12 @@ class App:
         self.root.after(60,self._pump)
 
 def main():
-    root=tk.Tk(); App(root); root.mainloop()
+    root=tk.Tk(); app=App(root)
+    # a file path argument (e.g. from the kiosk capture printer) auto-loads it
+    for a in sys.argv[1:]:
+        if os.path.isfile(a):
+            root.after(300, lambda p=a: app.load_path(p)); break
+    root.mainloop()
 
 if __name__=="__main__":
     main()
