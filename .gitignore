@@ -1,0 +1,14 @@
+# build artifacts
+dist/
+build/
+*.spec
+__pycache__/
+*.pyc
+
+# pyinstaller / local
+_paytest*.py
+settings.json
+
+# os
+Thumbs.db
+.DS_Store
